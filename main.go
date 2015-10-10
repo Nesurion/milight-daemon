@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -26,38 +25,20 @@ type Config struct {
 }
 
 func main() {
-	Colors := map[string]uint8{
-		"violet":        0x00,
-		"blue":          0x10,
-		"baby_blue":     0x20,
-		"aqua":          0x30,
-		"mint":          0x40,
-		"seafoam_green": 0x50,
-		"green":         0x60,
-		"lime_green":    0x70,
-		"yellow":        0x80,
-		"yellow_orange": 0x90,
-		"orange":        0xA0,
-		"red":           0xB0,
-		"pink":          0xC0,
-		"fusia":         0xD0,
-		"lilac":         0xE0,
-		"lavendar":      0xF0,
-	}
 	router := gin.Default()
+
 	c, err := parseConfig("milight-daemon.conf")
 	if err != nil {
 		panic("failed to parse config file")
 	}
 	host := fmt.Sprintf("0.0.0.0:%d", c.Port)
-	// create controller
+
+	// create limitless controller
 	controller := limitless.LimitlessController{
 		Host: c.Bridge,
 	}
 	groups := groups(&controller)
 	controller.Groups = groups
-
-	fmt.Println(controller)
 
 	router.POST("/on", func(c *gin.Context) {
 		id := parseGroup(c)
@@ -83,8 +64,7 @@ func main() {
 
 	router.POST("/color", func(c *gin.Context) {
 		id := parseGroup(c)
-		color := parseColor(c)
-
+		color := parseColorRGB(c)
 		if id == 0 {
 			for _, g := range controller.Groups {
 				err := g.SendColor(color)
@@ -108,57 +88,36 @@ func main() {
 			}
 			return
 		}
+		err := controller.Groups[id].SetBri(bl)
+		if err != nil {
+			c.String(500, "failed to send color")
+		}
 	})
+
 	router.POST("/hue", func(c *gin.Context) {
-		group := c.Query("group")
-		color := c.Query("color")
-		var id int
-		var err error
-		if id, err = strconv.Atoi(group); err != nil {
-			log.Print("failed to parse group id")
-			return
-		}
-		colorHex, ok := Colors[color]
-		if !ok {
-			log.Printf("color %s not available\n", color)
-			return
-		}
-		switch id {
-		case 1:
-			controller.Groups[0].SetHue(colorHex)
-		case 2:
-			controller.Groups[1].SetHue(colorHex)
-		case 3:
-			controller.Groups[2].SetHue(colorHex)
-		case 4:
-			controller.Groups[3].SetHue(colorHex)
-		default:
+		id := parseGroup(c)
+		color := parseColorName(c)
+		if id == 0 {
 			for _, g := range controller.Groups {
-				g.SetHue(colorHex)
+				g.SetHue(color)
 			}
+			return
+		}
+		err := controller.Groups[id].SetHue(color)
+		if err != nil {
+			c.String(500, "failed to send color")
 		}
 	})
+
 	router.POST("/white", func(c *gin.Context) {
-		group := c.Query("group")
-		var id int
-		var err error
-		if id, err = strconv.Atoi(group); err != nil {
-			log.Print("failed to parse group id")
-		}
-		switch id {
-		case 1:
-			controller.Groups[0].White()
-		case 2:
-			controller.Groups[1].White()
-		case 3:
-			controller.Groups[2].White()
-		case 4:
-			controller.Groups[3].White()
-		default:
+		id := parseGroup(c)
+		if id == 0 {
 			for _, g := range controller.Groups {
 				g.White()
 			}
+			return
 		}
+		controller.Groups[id].White()
 	})
 
 	router.Run(host)
@@ -206,11 +165,8 @@ func parseGroup(c *gin.Context) int {
 	return id
 }
 
-func parseColor(c gin.Context) colorful.Color {
-	r := c.Query("r")
-	g := c.Query("g")
-	b := c.Query("b")
-	rgb := map[string]int{
+func parseColorRGB(c *gin.Context) colorful.Color {
+	rgb := map[string]float64{
 		"r": 0,
 		"g": 0,
 		"b": 0,
@@ -234,7 +190,9 @@ func parseColor(c gin.Context) colorful.Color {
 
 func parseBrightnessLevel(c *gin.Context) uint8 {
 	level := c.Query("level")
-	if b64, err := strconv.ParseUint(level, 10, 8); err != nil {
+	var err error
+	var b64 uint64
+	if b64, err = strconv.ParseUint(level, 10, 8); err != nil {
 		c.String(500, "failed to parse brightness level")
 	}
 	b := uint8(b64)
@@ -243,4 +201,32 @@ func parseBrightnessLevel(c *gin.Context) uint8 {
 	}
 	b = b/BRIGHTNESS_RATIO + BRIGHTNESS_OFFSET
 	return b
+}
+
+func parseColorName(c *gin.Context) uint8 {
+	Colors := map[string]uint8{
+		"violet":        0x00,
+		"blue":          0x10,
+		"baby_blue":     0x20,
+		"aqua":          0x30,
+		"mint":          0x40,
+		"seafoam_green": 0x50,
+		"green":         0x60,
+		"lime_green":    0x70,
+		"yellow":        0x80,
+		"yellow_orange": 0x90,
+		"orange":        0xA0,
+		"red":           0xB0,
+		"pink":          0xC0,
+		"fusia":         0xD0,
+		"lilac":         0xE0,
+		"lavendar":      0xF0,
+	}
+
+	color := c.Query("color")
+	colorHex, ok := Colors[color]
+	if !ok {
+		c.String(400, "invalid color name %s", color)
+	}
+	return colorHex
 }
