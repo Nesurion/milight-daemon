@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -45,83 +46,208 @@ func main() {
 	controller.Groups = groups
 
 	router.POST("/on", func(c *gin.Context) {
-		id := parseGroup(c)
-		if id == 0 {
-			for _, g := range controller.Groups {
-				g.On()
-			}
+		id, err := parseGroup(c)
+		if err != nil {
+			c.AbortWithError(400, err)
 			return
 		}
-		controller.Groups[id].On()
+		msg := gin.H{
+			"command": "on",
+			"group":   0,
+		}
+		if id == -1 {
+			for _, g := range controller.Groups {
+				err = g.On()
+				if err != nil {
+					err = errors.New("failed to send off")
+					c.AbortWithError(500, err)
+					return
+				}
+			}
+		} else {
+			err = controller.Groups[id].On()
+			if err != nil {
+				err = errors.New("failed to send off")
+				c.AbortWithError(500, err)
+				return
+			}
+			msg["group"] = controller.Groups[id].Id
+		}
+		c.JSON(200, msg)
 	})
 
 	router.POST("/off", func(c *gin.Context) {
-		id := parseGroup(c)
-		if id == 0 {
-			for _, g := range controller.Groups {
-				g.Off()
-			}
+		id, err := parseGroup(c)
+		if err != nil {
+			c.AbortWithError(400, err)
 			return
 		}
-		controller.Groups[id].Off()
+		msg := gin.H{
+			"command": "off",
+			"group":   0,
+		}
+		if id == -1 {
+			for _, g := range controller.Groups {
+				err = g.Off()
+				if err != nil {
+					err = errors.New("failed to send off")
+					c.AbortWithError(500, err)
+					return
+				}
+			}
+		} else {
+			err = controller.Groups[id].Off()
+			if err != nil {
+				err = errors.New("failed to send off")
+				c.AbortWithError(500, err)
+				return
+			}
+			msg["group"] = controller.Groups[id].Id
+		}
+		c.JSON(200, msg)
 	})
 
 	router.POST("/color", func(c *gin.Context) {
-		id := parseGroup(c)
-		color := parseColorRGB(c)
-		if id == 0 {
+		id, err := parseGroup(c)
+		if err != nil {
+			c.AbortWithError(400, err)
+			return
+		}
+		color, err := parseColorRGB(c)
+		if err != nil {
+			c.AbortWithError(400, err)
+			return
+		}
+		msg := gin.H{
+			"command": "color",
+			"color":   color,
+			"group":   0,
+		}
+		if id == -1 {
 			for _, g := range controller.Groups {
 				err := g.SendColor(color)
 				if err != nil {
-					c.String(500, "failed to send color")
+					err = errors.New("failed to send color")
+					c.AbortWithError(500, err)
+					return
 				}
 			}
+		} else {
+			err = controller.Groups[id].SendColor(color)
+			if err != nil {
+				err = errors.New("failed to send color")
+				c.AbortWithError(500, err)
+				return
+			}
+			msg["group"] = controller.Groups[id].Id
 		}
-		err := controller.Groups[id].SendColor(color)
-		if err != nil {
-			c.String(500, "failed to send color")
-		}
+		c.JSON(200, msg)
 	})
 
 	router.POST("/brightness", func(c *gin.Context) {
-		id := parseGroup(c)
-		bl := parseBrightnessLevel(c)
-		if id == 0 {
-			for _, g := range controller.Groups {
-				g.SetBri(bl)
-			}
+		var bl uint8
+		id, err := parseGroup(c)
+		if err != nil {
+			c.AbortWithError(400, err)
 			return
 		}
-		err := controller.Groups[id].SetBri(bl)
+		bl, err = parseBrightnessLevel(c)
 		if err != nil {
-			c.String(500, "failed to send color")
+			c.AbortWithError(400, err)
+			return
 		}
+		msg := gin.H{
+			"command": "brightness",
+			"level":   bl,
+			"group":   0,
+		}
+		if id == -1 {
+			for _, g := range controller.Groups {
+				err = g.SetBri(bl)
+				if err != nil {
+					err = errors.New("failed to set brightness")
+					c.AbortWithError(500, err)
+					return
+				}
+			}
+		} else {
+			err = controller.Groups[id].SetBri(bl)
+			if err != nil {
+				err = errors.New("failed to set brightness")
+				c.AbortWithError(500, err)
+				return
+			}
+			msg["group"] = controller.Groups[id].Id
+		}
+		c.JSON(200, msg)
 	})
 
 	router.POST("/hue", func(c *gin.Context) {
-		id := parseGroup(c)
-		color := parseColorName(c)
-		if id == 0 {
-			for _, g := range controller.Groups {
-				g.SetHue(color)
-			}
+		id, err := parseGroup(c)
+		if err != nil {
+			c.AbortWithError(400, err)
 			return
 		}
-		err := controller.Groups[id].SetHue(color)
+		color, err := parseColorName(c)
 		if err != nil {
-			c.String(500, "failed to send color")
+			c.AbortWithError(400, err)
+			return
 		}
+		msg := gin.H{
+			"command": "hue",
+			"color":   fmt.Sprintf("%x", color),
+			"group":   0,
+		}
+		if id == -1 {
+			for _, g := range controller.Groups {
+				err = g.SetHue(color)
+				if err != nil {
+					err = errors.New("failed to set hue")
+					c.AbortWithError(500, err)
+					return
+				}
+			}
+		} else {
+			err = controller.Groups[id].SetHue(color)
+			if err != nil {
+				err = errors.New("failed to set hue")
+				c.AbortWithError(500, err)
+				return
+			}
+			msg["group"] = controller.Groups[id].Id
+		}
+		c.JSON(200, msg)
 	})
 
 	router.POST("/white", func(c *gin.Context) {
-		id := parseGroup(c)
-		if id == 0 {
-			for _, g := range controller.Groups {
-				g.White()
-			}
+		id, err := parseGroup(c)
+		if err != nil {
+			c.AbortWithError(400, err)
 			return
 		}
-		controller.Groups[id].White()
+		msg := gin.H{
+			"command": "white",
+			"group":   0,
+		}
+		if id == -1 {
+			for _, g := range controller.Groups {
+				err = g.White()
+				if err != nil {
+					err = errors.New("failed to set white")
+					c.AbortWithError(500, err)
+					return
+				}
+			}
+		} else {
+			err = controller.Groups[id].White()
+			if err != nil {
+				err = errors.New("failed to set white")
+				c.AbortWithError(500, err)
+				return
+			}
+			msg["group"] = controller.Groups[id].Id
+		}
+		c.JSON(200, msg)
 	})
 
 	router.Run(host)
@@ -153,23 +279,23 @@ func groups(c *limitless.LimitlessController) []limitless.LimitlessGroup {
 	return g
 }
 
-func parseGroup(c *gin.Context) int {
+func parseGroup(c *gin.Context) (int, error) {
 	group := c.Query("group")
-	var id int
-	var err error
-	if id, err = strconv.Atoi(group); err != nil {
-		// return http error instead of logging
-		c.String(500, "failed to parse group")
+	id, err := strconv.Atoi(group)
+	if err != nil {
+		err = errors.New("failed to parse group")
+		return -1, err
 	}
 	if id < 0 || id > 4 {
-		c.String(400, "invalid id. must be <= 0 or >= 4")
+		err = errors.New("invalid id. must be <= 0 or >= 4")
+		return -1, err
 	}
 	// use id as index for groups
-	id = id + 1
-	return id
+	id = id - 1
+	return id, nil
 }
 
-func parseColorRGB(c *gin.Context) colorful.Color {
+func parseColorRGB(c *gin.Context) (colorful.Color, error) {
 	rgb := map[string]float64{
 		"r": 0,
 		"g": 0,
@@ -178,36 +304,41 @@ func parseColorRGB(c *gin.Context) colorful.Color {
 	var err error
 	for k, v := range rgb {
 		if v, err = strconv.ParseFloat(c.Query(k), 64); err != nil {
-			c.String(500, "failed to parse color")
+			err = errors.New("failed to parse color")
+			return colorful.Color{}, err
 		}
 		if v < 0 || v > 255 {
-			c.String(400, "invalid color value %s %d. must be <= 0 or >= 255")
+			err = errors.New("invalid color value. must be <= 0 or >= 255")
+			return colorful.Color{}, err
 		}
+		rgb[k] = v
 	}
+	fmt.Println(rgb)
 	color := colorful.Color{
 		rgb["r"] / 255.0,
 		rgb["g"] / 255.0,
 		rgb["b"] / 255.0,
 	}
-	return color
+	return color, nil
 }
 
-func parseBrightnessLevel(c *gin.Context) uint8 {
+func parseBrightnessLevel(c *gin.Context) (uint8, error) {
 	level := c.Query("level")
-	var err error
-	var b64 uint64
-	if b64, err = strconv.ParseUint(level, 10, 8); err != nil {
-		c.String(500, "failed to parse brightness level")
+	b64, err := strconv.ParseUint(level, 10, 8)
+	if err != nil {
+		err = errors.New("failed to parse brightness level")
+		return 0, err
 	}
 	b := uint8(b64)
 	if b < BRIGHTNESS_MIN || b > BRIGHTNESS_MAX {
-		c.String(400, "invalid brightness level. Must be between 1-100")
+		err = errors.New("invalid brightness level. Must be between 1-100")
+		return 0, err
 	}
 	b = b/BRIGHTNESS_RATIO + BRIGHTNESS_OFFSET
-	return b
+	return b, nil
 }
 
-func parseColorName(c *gin.Context) uint8 {
+func parseColorName(c *gin.Context) (uint8, error) {
 	Colors := map[string]uint8{
 		"violet":        0x00,
 		"blue":          0x10,
@@ -230,9 +361,10 @@ func parseColorName(c *gin.Context) uint8 {
 	color := c.Query("color")
 	colorHex, ok := Colors[color]
 	if !ok {
-		c.String(400, "invalid color name %s", color)
+		err := errors.New("invalid color name")
+		return 0, err
 	}
-	return colorHex
+	return colorHex, nil
 }
 
 func setMode(mode string) {

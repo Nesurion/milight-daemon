@@ -8,5 +8,8 @@ $(PROJECT): $(SOURCE)
 run: $(PROJECT)
 	./$(PROJECT)
 
+debug: $(PROJECT)
+	./$(PROJECT) --mode=debug
+
 clean:
 	rm $(PROJECT)
