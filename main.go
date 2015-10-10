@@ -60,141 +60,53 @@ func main() {
 	fmt.Println(controller)
 
 	router.POST("/on", func(c *gin.Context) {
-		group := c.Query("group")
-		var id int
-		var err error
-		if id, err = strconv.Atoi(group); err != nil {
-			// return http error instead of logging
-			log.Print("failed to parse group id")
-		}
-		switch id {
-		case 1:
-			controller.Groups[0].On()
-		case 2:
-			controller.Groups[1].On()
-		case 3:
-			controller.Groups[2].On()
-		case 4:
-			controller.Groups[3].On()
-		default:
+		id := parseGroup(c)
+		if id == 0 {
 			for _, g := range controller.Groups {
 				g.On()
 			}
-		}
-	})
-	router.POST("/off", func(c *gin.Context) {
-		// this is ugly as hell
-		//TODO: find a way to export all the parsing and stuff into a function
-		group := c.Query("group")
-		var id int
-		var err error
-		if id, err = strconv.Atoi(group); err != nil {
-			log.Print("failed to parse group id")
 			return
 		}
-		switch id {
-		case 1:
-			controller.Groups[0].Off()
-		case 2:
-			controller.Groups[1].Off()
-		case 3:
-			controller.Groups[2].Off()
-		case 4:
-			controller.Groups[3].Off()
-		default:
+		controller.Groups[id].On()
+	})
+
+	router.POST("/off", func(c *gin.Context) {
+		id := parseGroup(c)
+		if id == 0 {
 			for _, g := range controller.Groups {
 				g.Off()
 			}
+			return
 		}
+		controller.Groups[id].Off()
 	})
+
 	router.POST("/color", func(c *gin.Context) {
-		group := c.Query("group")
-		r := c.Query("r")
-		g := c.Query("g")
-		b := c.Query("b")
-		var id int
-		var red, green, blue float64
-		var err error
-		if id, err = strconv.Atoi(group); err != nil {
-			log.Print("failed to parse group id")
-			return
-		}
-		if red, err = strconv.ParseFloat(r, 64); err != nil {
-			log.Print("failed to parse color")
-			return
-		}
-		if green, err = strconv.ParseFloat(g, 64); err != nil {
-			log.Print("failed to parse color")
-			return
-		}
-		if blue, err = strconv.ParseFloat(b, 64); err != nil {
-			log.Print("failed to parse color")
-			return
-		}
-		color := colorful.Color{red / 255.0, green / 255.0, blue / 255.0}
-		switch id {
-		case 1:
-			err = controller.Groups[0].SendColor(color)
-			if err != nil {
-				log.Print("failed to send color")
-			}
-		case 2:
-			err = controller.Groups[0].SendColor(color)
-			if err != nil {
-				log.Print("failed to send color")
-			}
-		case 3:
-			err = controller.Groups[0].SendColor(color)
-			if err != nil {
-				log.Print("failed to send color")
-			}
-		case 4:
-			err = controller.Groups[0].SendColor(color)
-			if err != nil {
-				log.Print("failed to send color")
-			}
-		default:
+		id := parseGroup(c)
+		color := parseColor(c)
+
+		if id == 0 {
 			for _, g := range controller.Groups {
-				err = g.SendColor(color)
+				err := g.SendColor(color)
 				if err != nil {
-					log.Print("failed to send color")
+					c.String(500, "failed to send color")
 				}
 			}
 		}
+		err := controller.Groups[id].SendColor(color)
+		if err != nil {
+			c.String(500, "failed to send color")
+		}
 	})
+
 	router.POST("/brightness", func(c *gin.Context) {
-		group := c.Query("group")
-		level := c.Query("level")
-		var id int
-		var b64 uint64
-		var err error
-		if id, err = strconv.Atoi(group); err != nil {
-			log.Print("failed to parse group id")
-			return
-		}
-		if b64, err = strconv.ParseUint(level, 10, 8); err != nil {
-			log.Print("failed to parse brightness level")
-			return
-		}
-		b := uint8(b64)
-		if b < BRIGHTNESS_MIN || b > BRIGHTNESS_MAX {
-			log.Print("failed to set brightness level. Must be between 1-100")
-			return
-		}
-		b = b/BRIGHTNESS_RATIO + BRIGHTNESS_OFFSET
-		switch id {
-		case 1:
-			controller.Groups[0].SetBri(b)
-		case 2:
-			controller.Groups[1].SetBri(b)
-		case 3:
-			controller.Groups[2].SetBri(b)
-		case 4:
-			controller.Groups[3].SetBri(b)
-		default:
+		id := parseGroup(c)
+		bl := parseBrightnessLevel(c)
+		if id == 0 {
 			for _, g := range controller.Groups {
-				g.SetBri(b)
+				g.SetBri(bl)
 			}
+			return
 		}
 	})
 	router.POST("/hue", func(c *gin.Context) {
@@ -276,4 +188,59 @@ func groups(c *limitless.LimitlessController) []limitless.LimitlessGroup {
 		}
 	}
 	return g
+}
+
+func parseGroup(c *gin.Context) int {
+	group := c.Query("group")
+	var id int
+	var err error
+	if id, err = strconv.Atoi(group); err != nil {
+		// return http error instead of logging
+		c.String(500, "failed to parse group")
+	}
+	if id < 0 || id > 4 {
+		c.String(400, "invalid id. must be <= 0 or >= 4")
+	}
+	// use id as index for groups
+	id = id + 1
+	return id
+}
+
+func parseColor(c gin.Context) colorful.Color {
+	r := c.Query("r")
+	g := c.Query("g")
+	b := c.Query("b")
+	rgb := map[string]int{
+		"r": 0,
+		"g": 0,
+		"b": 0,
+	}
+	var err error
+	for k, v := range rgb {
+		if v, err = strconv.ParseFloat(c.Query(k), 64); err != nil {
+			c.String(500, "failed to parse color")
+		}
+		if v < 0 || v > 255 {
+			c.String(400, "invalid color value %s %d. must be <= 0 or >= 255")
+		}
+	}
+	color := colorful.Color{
+		rgb["r"] / 255.0,
+		rgb["g"] / 255.0,
+		rgb["b"] / 255.0,
+	}
+	return color
+}
+
+func parseBrightnessLevel(c *gin.Context) uint8 {
+	level := c.Query("level")
+	if b64, err := strconv.ParseUint(level, 10, 8); err != nil {
+		c.String(500, "failed to parse brightness level")
+	}
+	b := uint8(b64)
+	if b < BRIGHTNESS_MIN || b > BRIGHTNESS_MAX {
+		c.String(400, "invalid brightness level. Must be between 1-100")
+	}
+	b = b/BRIGHTNESS_RATIO + BRIGHTNESS_OFFSET
+	return b
 }
