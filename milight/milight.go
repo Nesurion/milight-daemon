@@ -1,5 +1,14 @@
 package milight
 
+import (
+	"errors"
+	"strconv"
+
+	"github.com/evq/go-limitless"
+	"github.com/gin-gonic/gin"
+	"github.com/lucasb-eyer/go-colorful"
+)
+
 const (
 	BRIGHTNESS_RATIO  = 4
 	BRIGHTNESS_OFFSET = 2

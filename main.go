@@ -1,20 +1,14 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strconv"
 
-	"config"
-	"milight"
+	"github.com/nesurion/milight-daemon/milight"
 
 	"github.com/evq/go-limitless"
 	"github.com/gin-gonic/gin"
-	"github.com/lucasb-eyer/go-colorful"
 )
 
 func main() {
@@ -23,7 +17,7 @@ func main() {
 	SetMode(*ginMode)
 	router := gin.Default()
 
-	c, err := ginconfig.ParseConfig("milight-daemon.conf")
+	c, err := milight.ParseConfig("milight-daemon.conf")
 	if err != nil {
 		panic("failed to parse config file")
 	}

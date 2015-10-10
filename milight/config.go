@@ -1,4 +1,10 @@
-package config
+package milight
+
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+)
 
 type Config struct {
 	Port   int    `json:"port"`
