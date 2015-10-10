@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -25,6 +26,9 @@ type Config struct {
 }
 
 func main() {
+	ginMode := flag.String("mode", gin.ReleaseMode, "Gin Mode (debug, release, test)")
+	flag.Parse()
+	setMode(*ginMode)
 	router := gin.Default()
 
 	c, err := parseConfig("milight-daemon.conf")
@@ -229,4 +233,17 @@ func parseColorName(c *gin.Context) uint8 {
 		c.String(400, "invalid color name %s", color)
 	}
 	return colorHex
+}
+
+func setMode(mode string) {
+	switch mode {
+	case "release":
+		gin.SetMode(gin.ReleaseMode)
+	case "debug":
+		gin.SetMode(gin.DebugMode)
+	case "test":
+		gin.SetMode(gin.TestMode)
+	default:
+		panic("mode unavailable. (debug, release, test)")
+	}
 }
