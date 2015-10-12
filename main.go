@@ -5,9 +5,9 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/nesurion/go-limitless"
 	"github.com/nesurion/milight-daemon/milight"
 
-	"github.com/evq/go-limitless"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,6 +22,7 @@ func main() {
 		panic("failed to parse config file")
 	}
 	host := fmt.Sprintf("0.0.0.0:%d", c.Port)
+	fmt.Println("=== Milight Daemon ===")
 
 	// create limitless controller
 	controller := limitless.LimitlessController{
@@ -44,7 +45,7 @@ func main() {
 			for _, g := range controller.Groups {
 				err = g.On()
 				if err != nil {
-					err = errors.New("failed to send off")
+					err = errors.New("failed to send on")
 					c.AbortWithError(500, err)
 					return
 				}
@@ -52,7 +53,7 @@ func main() {
 		} else {
 			err = controller.Groups[id].On()
 			if err != nil {
-				err = errors.New("failed to send off")
+				err = errors.New("failed to send on")
 				c.AbortWithError(500, err)
 				return
 			}
@@ -232,6 +233,80 @@ func main() {
 			}
 			msg["group"] = controller.Groups[id].Id
 		}
+		c.JSON(200, msg)
+	})
+
+	router.POST("/disco", func(c *gin.Context) {
+		id, err := milight.ParseGroup(c)
+		if err != nil {
+			c.AbortWithError(400, err)
+			return
+		}
+		speed := c.Query("speed")
+		msg := gin.H{
+			"command": "disco",
+			"group":   0,
+			"speed":   "on",
+		}
+		switch speed {
+		case "up":
+			msg["speed"] = "up"
+			if id == -1 {
+				for _, g := range controller.Groups {
+					err = g.DiscoFaster()
+					if err != nil {
+						err = errors.New("failed to speed up")
+						c.AbortWithError(500, err)
+						return
+					}
+				}
+			} else {
+				err = controller.Groups[id].DiscoFaster()
+				if err != nil {
+					err = errors.New("failed to speed up")
+					c.AbortWithError(500, err)
+					return
+				}
+			}
+		case "down":
+			msg["speed"] = "down"
+			if id == -1 {
+				for _, g := range controller.Groups {
+					err = g.DiscoSlower()
+					if err != nil {
+						err = errors.New("failed to speed down")
+						c.AbortWithError(500, err)
+						return
+					}
+				}
+			} else {
+				err = controller.Groups[id].DiscoSlower()
+				if err != nil {
+					err = errors.New("failed to speed down")
+					c.AbortWithError(500, err)
+					return
+				}
+			}
+		case "":
+			if id == -1 {
+				for _, g := range controller.Groups {
+					err = g.Disco()
+					if err != nil {
+						err = errors.New("failed to set disco")
+						c.AbortWithError(500, err)
+						return
+					}
+				}
+			} else {
+				err = controller.Groups[id].Disco()
+				if err != nil {
+					err = errors.New("failed to set disco")
+					c.AbortWithError(500, err)
+					return
+				}
+			}
+		}
+		msg["group"] = controller.Groups[id].Id
 		c.JSON(200, msg)
 	})
 

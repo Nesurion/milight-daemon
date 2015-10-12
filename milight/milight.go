@@ -4,9 +4,9 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/evq/go-limitless"
 	"github.com/gin-gonic/gin"
 	"github.com/lucasb-eyer/go-colorful"
+	"github.com/nesurion/go-limitless"
 )
 
 const (
