@@ -236,6 +236,37 @@ func main() {
 		c.JSON(200, msg)
 	})
 
+	router.POST("/night", func(c *gin.Context) {
+		id, err := milight.ParseGroup(c)
+		if err != nil {
+			c.AbortWithError(400, err)
+			return
+		}
+		msg := gin.H{
+			"command": "night",
+			"group":   0,
+		}
+		if id == -1 {
+			for _, g := range controller.Groups {
+				err = g.Night()
+				if err != nil {
+					err = errors.New("failed to set night mode")
+					c.AbortWithError(500, err)
+					return
+				}
+			}
+		} else {
+			err = controller.Groups[id].Night()
+			if err != nil {
+				err = errors.New("failed to set night mode")
+				c.AbortWithError(500, err)
+				return
+			}
+			msg["group"] = controller.Groups[id].Id
+		}
+		c.JSON(200, msg)
+	})
+
 	router.POST("/disco", func(c *gin.Context) {
 		id, err := milight.ParseGroup(c)
 		if err != nil {
