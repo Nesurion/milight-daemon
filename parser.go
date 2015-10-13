@@ -1,4 +1,4 @@
-package milight
+package main
 
 import (
 	"errors"
@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lucasb-eyer/go-colorful"
-	"github.com/nesurion/go-limitless"
 )
 
 const (
@@ -15,17 +14,6 @@ const (
 	BRIGHTNESS_MIN    = 1
 	BRIGHTNESS_MAX    = 100
 )
-
-func Groups(c *limitless.LimitlessController) []limitless.LimitlessGroup {
-	g := make([]limitless.LimitlessGroup, 4, 4)
-	for i := 0; i < 4; i++ {
-		g[i] = limitless.LimitlessGroup{
-			Id:         i + 1,
-			Controller: c,
-		}
-	}
-	return g
-}
 
 func ParseGroup(c *gin.Context) (int, error) {
 	group := c.Query("group")
@@ -67,6 +55,21 @@ func ParseRGB(c *gin.Context) (colorful.Color, error) {
 		rgb["b"] / 255.0,
 	}
 	return color, nil
+}
+
+func parseSpeed(c *gin.Context) (string, error) {
+	speed := c.Query("speed")
+	switch speed {
+	case "":
+		return "", nil
+	case "up":
+		return "up", nil
+	case "down":
+		return "down", nil
+	default:
+		err := errors.New("failed to parse speed")
+		return "", err
+	}
 }
 
 func ParseBrightnessLevel(c *gin.Context) (uint8, error) {

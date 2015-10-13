@@ -11,7 +11,7 @@ type Config struct {
 	Bridge string `json:"bridge"`
 }
 
-func ParseConfig(configPath string) (Config, error) {
+func NewConfig(configPath string) (Config, error) {
 	c := Config{}
 	absConfigPath, err := filepath.Abs(configPath)
 	if err != nil {
