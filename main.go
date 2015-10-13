@@ -23,6 +23,7 @@ func main() {
 	}
 	host := fmt.Sprintf("0.0.0.0:%d", c.Port)
 	fmt.Println("=== Milight Daemon ===")
+	fmt.Printf("Running on %s\n", host)
 
 	// create limitless controller
 	controller := limitless.LimitlessController{
