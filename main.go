@@ -13,6 +13,13 @@ func main() {
 	flag.Parse()
 	SetMode(*ginMode)
 	router := gin.Default()
+	router.Use(func(c *gin.Context) {
+		// Run this on all requests
+		// Should be moved to a proper middleware
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type,Token")
+		c.Next()
+	})
 
 	c, err := milight.NewConfig("milight-daemon.conf")
 	if err != nil {
