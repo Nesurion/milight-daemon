@@ -3,12 +3,23 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nesurion/milight-daemon/milight"
 )
 
+const (
+	VERSION = "0.0.1"
+)
+
 func main() {
+	// if argument version was given, print VERSION and exit
+	if os.Args[1] == "version" {
+		fmt.Println(VERSION)
+		os.Exit(0)
+	}
+
 	ginMode := flag.String("mode", gin.ReleaseMode, "Gin Mode (debug, release, test)")
 	flag.Parse()
 	SetMode(*ginMode)
@@ -20,6 +31,7 @@ func main() {
 	}
 	host := fmt.Sprintf("0.0.0.0:%d", c.Port)
 	fmt.Println("=== Milight Daemon ===")
+	fmt.Printf("Version %s\n", VERSION)
 	fmt.Printf("Running on %s\n", host)
 
 	// create limitless controller
