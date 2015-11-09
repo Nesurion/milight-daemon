@@ -51,7 +51,7 @@ get a list of all possible flags by running: `milight-daemon --help`
 The milight-daemon exposes the following enpoints:
 
 **All Endpoints support the group parameter**:  
-paramter: group = [0, 1, 2, 3, 4] (0 = all groups)  
+paramter: group = \[0, 1, 2, 3, 4\] (0 = all groups)  
 
 ### on
 endpoint: `/on`  
@@ -64,10 +64,10 @@ example: `http://localhost:8080/off?group=1`
 ### rgb
 endpoint: `/rgb`  
 paramter:
+  - r = [1, 255]
+  - g = [1, 255]
+  - b = [1, 255]
 
-	- r = [1, 255]
-	- g = [1, 255]
-	- b = [1, 255]
 example: `http://localhost:8080/rgb?group=1&r=255&g=100&b=200`  
 
 ### brightness
@@ -79,24 +79,24 @@ example: `http://localhost:8080/brightness?group=1&level=50`
 ### color
 endpoint: `/color`
 paramter: 
+  - color =
+    - violet
+    - blue
+    - baby_blue
+    - aqua
+    - mint
+    - seafoam_green
+    - green
+    - lime_green
+    - yellow
+    - yellow_orange
+    - orange
+    - red
+    - pink
+    - fusia
+    - lilac
+    - lavendar
 
-	- color =
-		- violet
-		- blue
-		- baby_blue
-		- aqua
-		- mint
-		- seafoam_green
-		- green
-		- lime_green
-		- yellow
-		- yellow_orange
-		- orange
-		- red
-		- pink
-		- fusia
-		- lilac
-		- lavendar
 example: `http://localhost:8080/color?group=1&color=blue`
 
 ### white
@@ -110,8 +110,8 @@ example: `http://localhost:8080/night?group=1`
 ### disco
 endpoint: `/disco`
 paramter:
+  - speed = \[up, down\]
 
-	- speed = [up, down]
 *Note: speed is optional. To start disco mode you dont need the speed parameter.*  
 example: `http://localhost:8080/disco?group=1`  
 example: `http://localhost:8080/disco?group=1?speed=up` (speed=[up, down])  
