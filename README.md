@@ -63,7 +63,8 @@ example: `http://localhost:8080/off?group=1`
 
 ### rgb
 endpoint: `/rgb`  
-paramter: 
+paramter:
+
 	- r = [1, 255]
 	- g = [1, 255]
 	- b = [1, 255]
@@ -78,7 +79,8 @@ example: `http://localhost:8080/brightness?group=1&level=50`
 ### color
 endpoint: `/color`
 paramter: 
-	- color = 
+
+	- color =
 		- violet
 		- blue
 		- baby_blue
@@ -108,6 +110,7 @@ example: `http://localhost:8080/night?group=1`
 ### disco
 endpoint: `/disco`
 paramter:
+
 	- speed = [up, down]
 *Note: speed is optional. To start disco mode you dont need the speed parameter.*  
 example: `http://localhost:8080/disco?group=1`  
