@@ -16,8 +16,13 @@ compile the binary by running
 Note that in order to compile you need a working golang setup https://golang.org/doc/install.  
 Go offers a an easy way to cross-compile your code (go >= 1.5.0).
 
-To compile for a raspberry pi running debian run:
-`GOOS=linux GOARCH=arm GOARM=5 make`
+To compile for a raspberry pi running debian run:  
+
+raspberry pi version 1:  
+`make pi`
+
+raspberry pi veersion 2:  
+`make pi2`
 
 ## Config
 Milight-Daemon needs a config that contains information about your milight bridge.
