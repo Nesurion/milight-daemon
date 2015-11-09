@@ -8,6 +8,10 @@ import (
 	"github.com/nesurion/milight-daemon/milight"
 )
 
+const (
+	VERSION = "0.0.1"
+)
+
 func main() {
 	ginMode := flag.String("mode", gin.ReleaseMode, "Gin Mode (debug, release, test)")
 	flag.Parse()
@@ -20,6 +24,7 @@ func main() {
 	}
 	host := fmt.Sprintf("0.0.0.0:%d", c.Port)
 	fmt.Println("=== Milight Daemon ===")
+	fmt.Printf("Version %s\n", VERSION)
 	fmt.Printf("Running on %s\n", host)
 
 	// create limitless controller
