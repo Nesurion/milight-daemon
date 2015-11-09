@@ -59,14 +59,17 @@ The milight-daemon exposes the following enpoints:
 paramter: group = \[0, 1, 2, 3, 4\] (0 = all groups)  
 
 ### on
+request method: `POST`  
 endpoint: `/on`  
 example: `http://localhost:8080/on?group=1`  
 
 ### off
+request method: `POST`  
 endpoint: `/off`
 example: `http://localhost:8080/off?group=1`  
 
 ### rgb
+request method: `POST`  
 endpoint: `/rgb`  
 paramter:
   - r = [1, 255]
@@ -76,12 +79,14 @@ paramter:
 example: `http://localhost:8080/rgb?group=1&r=255&g=100&b=200`  
 
 ### brightness
+request method: `POST`  
 endpoint: `/brightness`
 paramter:
 	- level = [1,100]
 example: `http://localhost:8080/brightness?group=1&level=50`
 
 ### color
+request method: `POST`  
 endpoint: `/color`
 paramter: 
   - color =
@@ -105,14 +110,17 @@ paramter:
 example: `http://localhost:8080/color?group=1&color=blue`
 
 ### white
+request method: `POST`  
 endpoint: `/white`  
 example: `http://localhost:8080/white?group=1`
 
 ### night
+request method: `POST`  
 endpoint: `/night`  
 example: `http://localhost:8080/night?group=1`
 
 ### disco
+request method: `POST`  
 endpoint: `/disco`
 paramter:
   - speed = \[up, down\]
