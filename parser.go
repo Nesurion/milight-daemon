@@ -104,7 +104,7 @@ func ParseColor(c *gin.Context) (uint8, error) {
 		"red":           0xB0,
 		"pink":          0xC0,
 		"fusia":         0xD0,
-		"lilac":         0xE0,
+		"lila":          0xE0,
 		"lavendar":      0xF0,
 	}
 
