@@ -38,7 +38,10 @@ func main() {
 	fmt.Printf("Running on %s\n", host)
 
 	// create limitless controller
-	mc := milight.NewClient(c)
+	mc, err := milight.NewClient(c)
+	if err != nil {
+		panic(err)
+	}
 
 	router.POST("/on", func(c *gin.Context) {
 		id, err := ParseGroup(c)

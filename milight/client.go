@@ -13,15 +13,16 @@ type MilightClient struct {
 	Controller *limitless.LimitlessController
 }
 
-func NewClient(conf Config) *MilightClient {
-	c := limitless.LimitlessController{
-		Host: conf.Bridge,
+func NewClient(conf Config) (*MilightClient, error) {
+	c, err := limitless.NewLimitlessController(conf.Bridge)
+	if err != nil {
+		return nil, err
 	}
 	m := MilightClient{
-		Controller: &c,
+		Controller: c,
 	}
 	setGroups(m.Controller)
-	return &m
+	return &m, nil
 }
 
 func (m *MilightClient) On(id int) error {
