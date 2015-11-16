@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/nesurion/go-limitless"
@@ -27,14 +26,6 @@ func NewClient(conf Config) (*MilightClient, error) {
 }
 
 func (m *MilightClient) On(id int) error {
-	if id == -1 {
-		err := m.Controller.AllOn()
-		if err != nil {
-			err = fmt.Errorf("failed to send %s", funcName())
-		}
-		return err
-	}
-
 	err := m.Controller.Groups[id].On()
 	if err != nil {
 		err := fmt.Errorf("failed to send %s", funcName())
@@ -44,14 +35,6 @@ func (m *MilightClient) On(id int) error {
 }
 
 func (m *MilightClient) Off(id int) error {
-	if id == -1 {
-		err := m.Controller.AllOff()
-		if err != nil {
-			err = fmt.Errorf("failed to send %s", funcName())
-		}
-		return err
-	}
-
 	err := m.Controller.Groups[id].Off()
 	if err != nil {
 		err = fmt.Errorf("failed to send %s", funcName())
@@ -60,18 +43,6 @@ func (m *MilightClient) Off(id int) error {
 }
 
 func (m *MilightClient) Rgb(id int, color colorful.Color) error {
-	if id == -1 {
-		for _, g := range m.Controller.Groups {
-			err := g.SendColor(color)
-			if err != nil {
-				err := fmt.Errorf("failed to send %s", funcName())
-				return err
-			}
-			wait()
-		}
-		return nil
-	}
-
 	err := m.Controller.Groups[id].SendColor(color)
 	if err != nil {
 		err := fmt.Errorf("failed to send %s", funcName())
@@ -81,18 +52,6 @@ func (m *MilightClient) Rgb(id int, color colorful.Color) error {
 }
 
 func (m *MilightClient) Brightness(id int, brightness uint8) error {
-	if id == -1 {
-		for _, g := range m.Controller.Groups {
-			err := g.SetBri(brightness)
-			if err != nil {
-				err := fmt.Errorf("failed to send %s", funcName())
-				return err
-			}
-			wait()
-		}
-		return nil
-	}
-
 	err := m.Controller.Groups[id].SetBri(brightness)
 	if err != nil {
 		err := fmt.Errorf("failed to send %s", funcName())
@@ -102,18 +61,6 @@ func (m *MilightClient) Brightness(id int, brightness uint8) error {
 }
 
 func (m *MilightClient) Color(id int, color uint8) error {
-	if id == -1 {
-		for _, g := range m.Controller.Groups {
-			err := g.SetHue(color)
-			if err != nil {
-				err := fmt.Errorf("failed to send %s", funcName())
-				return err
-			}
-			wait()
-		}
-		return nil
-	}
-
 	err := m.Controller.Groups[id].SetHue(color)
 	if err != nil {
 		err := fmt.Errorf("failed to send %s", funcName())
@@ -123,18 +70,6 @@ func (m *MilightClient) Color(id int, color uint8) error {
 }
 
 func (m *MilightClient) White(id int) error {
-	if id == -1 {
-		for _, g := range m.Controller.Groups {
-			err := g.White()
-			if err != nil {
-				err := fmt.Errorf("failed to send %s", funcName())
-				return err
-			}
-			wait()
-		}
-		return nil
-	}
-
 	err := m.Controller.Groups[id].White()
 	if err != nil {
 		err := fmt.Errorf("failed to send %s", funcName())
@@ -144,18 +79,6 @@ func (m *MilightClient) White(id int) error {
 }
 
 func (m *MilightClient) Night(id int) error {
-	if id == -1 {
-		for _, g := range m.Controller.Groups {
-			err := g.Night()
-			if err != nil {
-				err := fmt.Errorf("failed to send %s", funcName())
-				return err
-			}
-			wait()
-		}
-		return nil
-	}
-
 	err := m.Controller.Groups[id].Night()
 	if err != nil {
 		err := fmt.Errorf("failed to send %s", funcName())
@@ -167,18 +90,6 @@ func (m *MilightClient) Night(id int) error {
 func (m *MilightClient) Disco(id int, speed string) error {
 	switch speed {
 	case "up":
-		if id == -1 {
-			for _, g := range m.Controller.Groups {
-				err := g.DiscoFaster()
-				if err != nil {
-					err := fmt.Errorf("failed to send %s", funcName())
-					return err
-				}
-				wait()
-			}
-			return nil
-		}
-
 		err := m.Controller.Groups[id].DiscoFaster()
 		if err != nil {
 			err := fmt.Errorf("failed to send %s", funcName())
@@ -186,18 +97,6 @@ func (m *MilightClient) Disco(id int, speed string) error {
 		}
 		return nil
 	case "down":
-		if id == -1 {
-			for _, g := range m.Controller.Groups {
-				err := g.DiscoSlower()
-				if err != nil {
-					err := fmt.Errorf("failed to send %s", funcName())
-					return err
-				}
-				wait()
-			}
-			return nil
-		}
-
 		err := m.Controller.Groups[id].DiscoSlower()
 		if err != nil {
 			err := fmt.Errorf("failed to send %s", funcName())
@@ -205,18 +104,6 @@ func (m *MilightClient) Disco(id int, speed string) error {
 		}
 		return nil
 	default:
-		if id == -1 {
-			for _, g := range m.Controller.Groups {
-				err := g.Disco()
-				if err != nil {
-					err := fmt.Errorf("failed to send %s", funcName())
-					return err
-				}
-				wait()
-			}
-			return nil
-		}
-
 		err := m.Controller.Groups[id].Disco()
 		if err != nil {
 			err := fmt.Errorf("failed to send %s", funcName())
@@ -227,10 +114,10 @@ func (m *MilightClient) Disco(id int, speed string) error {
 }
 
 func setGroups(c *limitless.LimitlessController) {
-	g := make([]limitless.LimitlessGroup, 4, 4)
-	for i := 0; i < 4; i++ {
+	g := make([]limitless.LimitlessGroup, 5, 5)
+	for i := 0; i < 5; i++ {
 		g[i] = limitless.LimitlessGroup{
-			Id:         i + 1,
+			Id:         i,
 			Controller: c,
 		}
 	}
@@ -241,8 +128,4 @@ func funcName() string {
 	pc, _, _, _ := runtime.Caller(1)
 	t := strings.Split(runtime.FuncForPC(pc).Name(), ".")
 	return strings.ToLower(t[len(t)-1])
-}
-
-func wait() {
-	time.Sleep(200 * time.Millisecond)
 }

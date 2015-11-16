@@ -56,7 +56,7 @@ func main() {
 		}
 		msg := gin.H{
 			"command": "on",
-			"group":   id + 1,
+			"group":   id,
 		}
 		c.JSON(200, msg)
 	})
@@ -74,7 +74,7 @@ func main() {
 		}
 		msg := gin.H{
 			"command": "off",
-			"group":   id + 1,
+			"group":   id,
 		}
 		c.JSON(200, msg)
 	})
@@ -98,7 +98,7 @@ func main() {
 		msg := gin.H{
 			"command": "rgb",
 			"rgb":     rgb,
-			"group":   id + 1,
+			"group":   id,
 		}
 		c.JSON(200, msg)
 	})
@@ -122,7 +122,7 @@ func main() {
 		msg := gin.H{
 			"command": "brightness",
 			"level":   bl,
-			"group":   id + 1,
+			"group":   id,
 		}
 		c.JSON(200, msg)
 	})
@@ -146,7 +146,7 @@ func main() {
 		msg := gin.H{
 			"command": "color",
 			"color":   fmt.Sprintf("%x", color),
-			"group":   id + 1,
+			"group":   id,
 		}
 		c.JSON(200, msg)
 	})
@@ -164,7 +164,7 @@ func main() {
 		}
 		msg := gin.H{
 			"command": "white",
-			"group":   id + 1,
+			"group":   id,
 		}
 		c.JSON(200, msg)
 	})
@@ -182,7 +182,7 @@ func main() {
 		}
 		msg := gin.H{
 			"command": "night",
-			"group":   id + 1,
+			"group":   id,
 		}
 		c.JSON(200, msg)
 	})
@@ -206,7 +206,7 @@ func main() {
 		msg := gin.H{
 			"command": "disco",
 			"speed":   speed,
-			"group":   id + 1,
+			"group":   id,
 		}
 		c.JSON(200, msg)
 	})

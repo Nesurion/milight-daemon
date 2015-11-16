@@ -26,8 +26,6 @@ func ParseGroup(c *gin.Context) (int, error) {
 		err = errors.New("invalid id. must be <= 0 or >= 4")
 		return -1, err
 	}
-	// use id as index for groups
-	id = id - 1
 	return id, nil
 }
 
