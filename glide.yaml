@@ -1,0 +1,8 @@
+package: .
+import:
+- package: github.com/gin-gonic/gin
+- package: github.com/lucasb-eyer/go-colorful
+- package: github.com/nesurion/go-limitless
+- package: github.com/nesurion/milight-daemon
+  subpackages:
+  - /milight

@@ -1,0 +1,46 @@
+hash: deeb66202869069997e4710c0e635f26e1b48e387bc6a57a20d9a4ac2d674f35
+updated: 2016-02-15T17:05:35.612695452+01:00
+imports:
+- name: github.com/davecgh/go-spew
+  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
+  subpackages:
+  - spew
+- name: github.com/gin-gonic/gin
+  version: 27f912f5b2c8ee7dd7655d479dee2fc4d41d32d7
+- name: github.com/golang/protobuf
+  version: 2402d76f3d41f928c7902a765dfc872356dd3aad
+  subpackages:
+  - proto
+- name: github.com/lucasb-eyer/go-colorful
+  version: e524a63fc3d334b573e6c1060c9b5866cf236626
+- name: github.com/manucorporat/sse
+  version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
+- name: github.com/nesurion/go-limitless
+  version: 98fce5006a7c79efd9270aa51e16dbd0b4c13f87
+- name: github.com/nesurion/milight-daemon
+  version: d75f56132a7d3fd10e643cc105ca85c9f37889fc
+  subpackages:
+  - /milight
+- name: github.com/pmezard/go-difflib
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  subpackages:
+  - difflib
+- name: github.com/stretchr/objx
+  version: cbeaeb16a013161a98496fad62933b1d21786672
+- name: github.com/stretchr/testify
+  version: f390dcf405f7b83c997eac1b06768bb9f44dec18
+  subpackages:
+  - assert
+- name: golang.org/x/crypto
+  version: 1f22c0103821b9390939b6776727195525381532
+  repo: https://golang.org/x/crypto
+- name: golang.org/x/net
+  version: f315505cf3349909cdf013ea56690da34e96a451
+  subpackages:
+  - context
+- name: golang.org/x/text
+  version: 07b9a78963006a15c538ec5175243979025fa7a8
+  repo: https://golang.org/x/text
+- name: gopkg.in/go-playground/validator.v8
+  version: c193cecd124b5cc722d7ee5538e945bdb3348435
+devImports: []
